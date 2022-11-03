@@ -1,0 +1,43 @@
+fill SQL database from a CSV file
+
+don't use a bunch of many many sequencial INSERTS, that's nooby
+use a single query that does all that
+
+instead of:
+    INSERT INTO users (name, email) VALUES ('user1','user1@email.com');
+    INSERT INTO users (name, email) VALUES ('user2','user2@email.com');
+    INSERT INTO users (name, email) VALUES ('user3','user3@email.com');
+    INSERT INTO users (name, email) VALUES ('user4','user4@email.com');
+
+do this:
+    INSERT INTO users (name, email) VALUES ('user1','user1@email.com'),
+     ('user1','user1@email.com'),
+     ('user2','user2@email.com'),
+     ('user3','user3@email.com'),
+     ('user4','user4@email.com');
+
+code example:
+    [[ NOOB ]]
+
+    file.on("line", async (line) => {
+        await sequelize.query({
+            query: 'INSERT INTO users (name, email) VALUES (?,?)',
+            values: line.split(','),
+        });
+    });
+
+    [[ CHAD ]]
+    
+    const users = [];
+
+    file.on("line", (line) => {
+        users.push(line.split(','));
+    });
+
+    file.on("close", async () => {
+        await sequelize.query({
+            query: 'INSERT INTO users (name, email) VALUES ?',
+            values: [users],
+        });
+    });
+
